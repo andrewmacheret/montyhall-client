@@ -2,7 +2,7 @@ var React = require('react');
 /*eslint-disable */ //this is stupid
 var ReactDOM = require('react-dom');
 /*eslint-enable */
-//var fetch = require('fetch');
+require('whatwg-fetch');
 
 var SETTINGS_JSON = 'settings.json';
 

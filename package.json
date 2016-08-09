@@ -22,9 +22,7 @@
     "watch": "brunch watch --server",
     "build": "brunch build --production",
     "clean": "rm -rf public/",
-    "docker:build": "docker build -t montyhall-client .",
-    "docker:run": "docker run --rm -it -p 3333:80 --name montyhall-client montyhall-client",
-    "package": "npm run clean && npm run build && npm run docker:build"
+    "package": "npm run clean && npm run build"
   },
   "dependencies": {
     "react": "~15.3.0",
