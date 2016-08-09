@@ -1,0 +1,106 @@
+html {
+  font-family: Helvetica, Arial, sans-serif;
+  font-color: #333;
+  text-rendering: optimizelegibility;
+}
+
+input, select, button, textarea {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 16px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+img {
+  vertical-align: middle;
+}
+
+a:link {
+  text-decoration: none;
+  color: #213483;
+}
+
+a:visited {
+  text-decoration: none;
+  color: #213483;
+}
+
+a:hover {
+  text-decoration: none;
+  color: #4763d1;
+}
+
+a:active {
+  text-decoration: none;
+}
+
+h1 {
+  margin: 10px;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+h2 {
+  margin: 10px;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+.code {
+  font-family: monospace;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#app {
+  text-align: center;
+}
+
+
+.door {
+  width: 30%;
+  margin: 1%;
+  padding: 0;
+  display: inline;
+  vertical-align: middle;
+}
+
+.door {
+  content: url("images/door.jpg");
+}
+
+.door.state-UNSELECTED, .door.state-SELECTED {
+  cursor: pointer;
+}
+
+.door.prize-WIN {
+  content: url("images/car.jpg");
+}
+.door.prize-LOSE {
+  content: url("images/goats.jpg");
+}
+
+.stat-label {
+  display: inline-block;
+  width: 100px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.stat-text {
+  display: inline-block;
+  width: 120px;
+  text-align: left;
+}
+
+.new-game-link {
+  position: absolute;
+  display: inline-block;
+  right: 0;
+  margin-right: 3%;
+  font-size: 50px;
+}
+
