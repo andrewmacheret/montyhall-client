@@ -22,7 +22,9 @@
     "watch": "brunch watch --server",
     "build": "brunch build --production",
     "clean": "rm -rf public/",
-    "package": "npm run clean && npm run build"
+    "deploy:s3": "aws s3 sync public/ s3://andrewmacheret.com/projects/monty/ --acl public-read",
+    "package": "npm run clean && npm run build",
+    "package-and-deploy": "npm run package && npm run deploy:s3"
   },
   "dependencies": {
     "react": "~15.3.0",
