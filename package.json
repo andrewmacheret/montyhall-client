@@ -2,7 +2,7 @@
   "name": "montyhall-client",
   "description": "A web-based client for montyhall-server built in react",
   "author": "Andrew Macheret",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andrewmacheret/montyhall-client.git"
