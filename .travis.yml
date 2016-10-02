@@ -1,0 +1,29 @@
+language: node_js
+
+node_js:
+  - '6'
+
+install:
+  # install dependencies
+  - set -e
+  - npm install
+
+script:
+  # build and test
+  - set -e
+  - gulp test
+
+deploy:
+  provider: s3
+  access_key_id:
+    secure: "K9WrNPhRNqagk9EeYl9OSARqcxauCktklHSmrvVqvDdXYOyR8ttTz0hyMfbJShb8HimubM56b5LrFzqGHnLVTn1I/2Gq/YxCte+npAicJ7O1GXTHfXBZm9St5isN8qwPqHfzbZ4aX9RG8/KEcxLic7Eqbaxt41dDAdOQZ86Tm4ASB7A01c+rSiP1xwcH4XXKn98WgBFldTFV9csUA/jBYsCANbcadbedawSKWweLJzmhDS07uh379ph7/JPUVxI+Of4I1NN0/BpRv2QUvXUFJV2nAs7YXH1a7CSrirx1BWO1/hmwg5O2lKz4lFHJR2ge9PXOs060Vk23iMFTeyX4XMq1uxDnBLvtZjr99V41i65//6CP4mxn3kyUg8+Ql34t7hiEzGeyl4/EnIkM2dVoE3Rg0MgULIxuIAWB7j9UzwHCmLDCbHeRkMj7tSAGUmP1cGAbcXZGUXX7Vyt+Cn77jQANNUJA50hXEHLOsakC3TBbSKu8+IRxFzkPuChFoFC8KgXDEFJzFTgVI3+vw7S2zvY6NIuq0w84so9kuqOdwC6LiQarBsoEPKUxJ+fShXl4u3oonHTafcpCAR2uhJEMc9Syex3aI59A30bVKm5vuWwmyG8doIoPS5zmRsI18fX9LDjWYwejLKXy7OoxfA7lI5MKe896dHW+PJrbFlXjgFk="
+  secret_access_key:
+    secure: "Js1t7kZ9UQGpzVUwwtcot+Jrj4GYwjzH61P1xpEvQTZ8at85dgz+If2QgSOSBHufse8fJso0XiIT6+MG6Aaq5NsO2kjODWLZbFGvCLKM4o67lwZljaHnj6TozBtofhqQaFZ7BpZLAA3+AEe6ZW4yn7J3Nrmq2d6kWrfhldxZDjkHSC11BB2PwkAJBfBwbg+a6+qpa+DFOX1QPZd6zSldOxTXBwUy49cpZeCXT9Y+i23MYsL5p3BjP9Y+Ppbo7EdedoW68p1ekOn3wm3JKAhFwfPlburbQapOFXk9R53j6GLtyGS261QLTrWCep/U7COKqawgF6J/9z2/Y5VdxKtCZPYocwo9rgaWgJsV94NqV8B5dXTz0Q6AR8sDg5/SCPzrtLUIOpKOAElolREEbIoXGjjZ2Fo9jGJV4AFUBqX7FqP+tt0QIs8EQw0+OpSSgIcv1fwPe6DeVta378A3p+ESsOsRwuK0/eR8Y6og8CMjrQkkdtWUGEFeluws4YBuGRF87piFHN50exdJb7wHgHkFiu0XTHWL/DuQR2XaDqTgfAenf4m/qyUzNG5MS/EQnL3HoWUWor289IAvI3hEuqqP6Z+cFh74EaL7fZvTXnMl2n2z2FUnPaDIUpgmcdALxaytHqUwH0keEBgw1hXUYYTlovyKGTnkDjCyOz9/+Avhh2Y="
+  bucket: andrewmacheret.com
+  skip_cleanup: true
+  acl: public_read
+  region: us-east-1
+  default_text_charset: utf-8
+  detect_encoding: true
+  local_dir: build/
+  upload_dir: projects/montyhall-client/
