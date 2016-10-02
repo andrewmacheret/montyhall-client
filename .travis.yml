@@ -31,4 +31,4 @@ deploy:
   default_text_charset: utf-8
   detect_encoding: true
   local_dir: public
-  upload_dir: projects/montyhall-client
+  upload_dir: projects/montyhall
