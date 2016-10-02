@@ -11,12 +11,12 @@ install:
 before_script:
   # install tools required for script phase
   - set -e
-  - npm install gulp
+  - npm install -g brunch
 
 script:
   # build and test
   - set -e
-  - gulp test
+  - brunch build --production
 
 deploy:
   provider: s3
@@ -30,5 +30,5 @@ deploy:
   region: us-east-1
   default_text_charset: utf-8
   detect_encoding: true
-  local_dir: build/
+  local_dir: public/
   upload_dir: projects/montyhall-client/
