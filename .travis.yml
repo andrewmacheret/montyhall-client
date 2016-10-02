@@ -8,6 +8,11 @@ install:
   - set -e
   - npm install
 
+before_script:
+  # install tools required for script phase
+  - set -e
+  - npm install -g gulp
+
 script:
   # build and test
   - set -e
