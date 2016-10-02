@@ -30,5 +30,5 @@ deploy:
   region: us-east-1
   default_text_charset: utf-8
   detect_encoding: true
-  local_dir: public/
-  upload_dir: projects/montyhall-client/
+  local_dir: public
+  upload_dir: projects/montyhall-client
