@@ -11,7 +11,7 @@ install:
 before_script:
   # install tools required for script phase
   - set -e
-  - npm install -g gulp
+  - npm install gulp
 
 script:
   # build and test
