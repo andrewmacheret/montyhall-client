@@ -38,7 +38,6 @@ var Game = React.createClass({
   callApi: function(options, callback) {
     //options: relativeUrl, method, body
 
-    //var baseUrl = 'http://localhost:8080/api/v1/monty/';
     var baseUrl = this.settings.api;
 
     var headers = new Headers();
