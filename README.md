@@ -4,6 +4,8 @@
 
 A react-based client for [montyhall-server](https://github.com/andrewmacheret/montyhall-server).
 
+See it running at [https://andrewmacheret.com/projects/montyhall](https://andrewmacheret.com/projects/montyhall).
+
 Build with [brunch](http://brunch.io/).
 
 Make sure to modify the montyhall-server url in [settings.json](app/assets/settings.json).
