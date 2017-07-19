@@ -64,7 +64,7 @@ var Game = React.createClass({
 
     var newGame = (this.state.id == null || forceNewGame);
     this.callApi({
-      relativeUrl: newGame ? '/game' : '/game/' + this.state.id,
+      relativeUrl: newGame ? '/games' : '/games/' + this.state.id,
       method: newGame ? 'POST' : 'GET',
       body: newGame ? options : null
     }, function(json) {
@@ -108,7 +108,7 @@ var Game = React.createClass({
 
   putDoor: function(doorNumber, doorState) {
     this.callApi({
-      relativeUrl: '/game/' + this.state.id + '/door/' + doorNumber,
+      relativeUrl: '/games/' + this.state.id + '/doors/' + doorNumber,
       method: 'PUT',
       body: {state: doorState}
     }, function() {
@@ -118,7 +118,7 @@ var Game = React.createClass({
 
   restartGame: function() {
     this.callApi({
-      relativeUrl: '/game/' + this.state.id,
+      relativeUrl: '/games/' + this.state.id,
       method: 'DELETE'
     }, function() {
       this.getDoors(true);
