@@ -1,33 +1,42 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { callApi } from './api.js';
 import Door from './Door.jsx';
+import Stats from './Stats.jsx';
 
-const STAT_GROUPS = [
-  ['stayed', 'Stayed'],
-  ['switched', 'Switched'],
-  ['totals', 'Total']
-];
+const PLACEHOLDER_DOORS = [1, 2, 3].map((number) => ({ number, state: 'UNSELECTED' }));
 
-function winRatio(stats, group) {
-  const win = stats[`${group}-win`] || 0;
-  const lose = stats[`${group}-lose`] || 0;
-  const total = win + lose;
-  return total === 0 ? 'N/A' : `${Math.round((win / total) * 10000) / 100}%`;
+function Icon({ children }) {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      {children}
+    </svg>
+  );
 }
 
 function message(game) {
-  if (!game) return 'Loading...';
-  if (game.state === 'SELECT_A_DOOR') return 'Behind one door is a car, behind the others are goats.';
-  if (game.state === 'SECOND_CHANCE') {
-    const openedDoor = game.doors.find((door) => door.state === 'OPENED');
-    return `I'll give you a chance: it's not behind door number ${openedDoor.number}.`;
+  if (!game) return { title: 'Setting the stage…', detail: 'Hiding a car behind one of the doors.' };
+  const selected = game.doors.find((door) => door.state === 'SELECTED');
+  if (game.state === 'SELECT_A_DOOR') {
+    return { title: 'Pick a door', detail: 'Behind one door is a car. Behind the others, goats.' };
   }
-  return game.prize === 'WIN' ? 'Congratulations, you win a car!' : 'Sorry, you win a goat.';
+  if (game.state === 'SECOND_CHANCE') {
+    const opened = game.doors.find((door) => door.state === 'OPENED');
+    return {
+      title: `There's a goat behind door ${opened.number}`,
+      detail: `Do you stay with door ${selected.number}, or switch?`
+    };
+  }
+  // after a switch the first pick is still marked SELECTED
+  const how = game.switched ? `You switched from door ${selected.number}` : 'You stayed';
+  return game.prize === 'WIN'
+    ? { title: 'You won a car!', detail: `${how}. Switching wins about 2 games in 3.`, tone: 'win' }
+    : { title: 'You got a goat', detail: `${how}. Switching wins about 2 games in 3.`, tone: 'lose' };
 }
 
 export default function Game({ numberOfDoors }) {
   const [game, setGame] = useState(null);
-  const [stats, setStats] = useState({});
+  const [finalPick, setFinalPick] = useState(null);
+  const [stats, setStats] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const started = useRef(false);
@@ -51,6 +60,7 @@ export default function Game({ numberOfDoors }) {
     if (oldGameId) {
       callApi(`/games/${oldGameId}`, 'DELETE').catch(() => {});
     }
+    setFinalPick(null);
     setGame(await callApi('/games', 'POST', numberOfDoors ? { numberOfDoors } : {}));
   }, [numberOfDoors]);
 
@@ -62,12 +72,9 @@ export default function Game({ numberOfDoors }) {
   }, [run, newGame, loadStats]);
 
   const openDoor = (number) => run(async () => {
-    if (game.state === 'FINISHED') {
-      await newGame(game.id);
-      return;
-    }
     const doorState = game.state === 'SELECT_A_DOOR' ? 'SELECTED' : 'OPENED';
     await callApi(`/games/${game.id}/doors/${number}`, 'PUT', { state: doorState });
+    if (doorState === 'OPENED') setFinalPick(number);
     const updated = await callApi(`/games/${game.id}`);
     setGame(updated);
     if (updated.state === 'FINISHED') {
@@ -75,40 +82,71 @@ export default function Game({ numberOfDoors }) {
     }
   });
 
-  const restart = (event) => {
-    event.preventDefault();
-    run(() => newGame(game.id));
-  };
+  const playAgain = () => run(() => newGame(game?.id));
+
+  const finished = game?.state === 'FINISHED';
+  const { title, detail, tone } = message(game);
 
   return (
-    <div className="game">
-      {game?.state === 'FINISHED' && (
-        <a className="new-game-link" href="#" onClick={restart}>New Game</a>
-      )}
-      <h1 className="message">{message(game)}</h1>
-      {error && <p className="error" role="alert">Something went wrong: {error}</p>}
-      <div className="stats">
-        {STAT_GROUPS.map(([group, label]) => (
-          <h2 key={group} className={`stats-${group}`}>
-            <span className="stat-label">{label}</span>
-            <span className="stat-text">Cars Won: {stats[`${group}-win`] || 0}</span>
-            <span className="stat-text">Goats Won: {stats[`${group}-lose`] || 0}</span>
-            <span className="stat-text">Car Ratio: {winRatio(stats, group)}</span>
-          </h2>
-        ))}
-      </div>
-      <div className="doors">
-        {game?.doors.map((door) => (
-          <Door
-            key={door.number}
-            number={door.number}
-            state={door.state}
-            prize={door.prize}
+    <main className="app">
+      <header className="header">
+        <h1>Monty Hall</h1>
+        <p>The game show puzzle that fools almost everyone.</p>
+      </header>
+
+      <section className={tone ? `stage stage-${tone}` : 'stage'} aria-labelledby="message">
+        <div className="message" aria-live="polite">
+          <h2 id="message">{title}</h2>
+          <p>{detail}</p>
+        </div>
+
+        <div className="doors" aria-busy={busy}>
+          {(game?.doors ?? PLACEHOLDER_DOORS).map((door) => (
+            <Door
+              // a new game remounts the doors so they don't swing shut on screen
+              key={`${game?.id}-${door.number}`}
+              number={door.number}
+              state={door.state}
+              prize={door.prize}
+              gameState={game?.state}
+              isFinalPick={door.number === finalPick}
+              disabled={busy || !game || finished}
+              onOpen={openDoor}
+            />
+          ))}
+        </div>
+
+        {error && (
+          <p className="error" role="alert">
+            Something went wrong: {error}
+          </p>
+        )}
+
+        <div className="dock">
+          {/* stays in the layout so the doors don't jump when it shows up */}
+          <button
+            type="button"
+            className="control primary"
+            hidden={!finished && !(error && !game)}
             disabled={busy}
-            onOpen={openDoor}
-          />
-        ))}
-      </div>
-    </div>
+            onClick={playAgain}
+          >
+            <Icon>
+              <path d="M3 12a9 9 0 1 0 3-6.7L3 8" />
+              <path d="M3 3v5h5" />
+            </Icon>
+            {game ? 'Play again' : 'Try again'}
+          </button>
+        </div>
+      </section>
+
+      <Stats stats={stats} />
+
+      <footer className="footer">
+        <a href="https://en.wikipedia.org/wiki/Monty_Hall_problem">Why does switching win?</a>
+        <span aria-hidden="true">·</span>
+        <a href="https://github.com/andrewmacheret/montyhall-client">Source</a>
+      </footer>
+    </main>
   );
 }
