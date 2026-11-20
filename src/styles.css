@@ -1,0 +1,112 @@
+:root {
+  color-scheme: light dark;
+  --background: #fff;
+  --text: #333;
+  --link: #213483;
+  --link-hover: #4763d1;
+  --error: #b00020;
+  --focus: #4763d1;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121418;
+    --text: #e8e8e8;
+    --link: #8ea6ff;
+    --link-hover: #c0ceff;
+    --error: #ff8a80;
+    --focus: #8ea6ff;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-family: Helvetica, Arial, sans-serif;
+  text-rendering: optimizelegibility;
+  background-color: var(--background);
+  color: var(--text);
+}
+
+a:link, a:visited {
+  text-decoration: none;
+  color: var(--link);
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+h1 {
+  margin: 10px;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+h2 {
+  margin: 10px;
+  font-size: 14px;
+  font-weight: normal;
+}
+
+#app {
+  text-align: center;
+}
+
+.error {
+  margin: 10px;
+  color: var(--error);
+}
+
+.door {
+  width: 30%;
+  margin: 1%;
+  border: none;
+  background: none;
+  vertical-align: middle;
+  cursor: pointer;
+}
+
+.door:disabled {
+  cursor: default;
+}
+
+.door:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.door img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 550 / 518;
+  object-fit: cover;
+}
+
+.state-SELECTED img {
+  outline: 4px solid var(--link);
+}
+
+.stat-label {
+  display: inline-block;
+  width: 100px;
+  font-weight: bold;
+  text-align: left;
+}
+
+.stat-text {
+  display: inline-block;
+  width: 120px;
+  text-align: left;
+}
+
+.new-game-link {
+  position: absolute;
+  display: inline-block;
+  right: 0;
+  margin-right: 3%;
+  font-size: 50px;
+}

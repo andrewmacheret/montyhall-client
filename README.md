@@ -1,12 +1,30 @@
 # montyhall-client
 
-[![Build Status](https://travis-ci.org/andrewmacheret/montyhall-client.svg?branch=master)](https://travis-ci.org/andrewmacheret/montyhall-client) [![License](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://github.com/andrewmacheret/montyhall-client/blob/master/LICENSE.md)
+[![License](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://github.com/andrewmacheret/montyhall-client/blob/master/LICENSE.md)
 
-A react-based client for [montyhall-server](https://github.com/andrewmacheret/montyhall-server).
+A React game of the [Monty Hall problem](https://en.wikipedia.org/wiki/Monty_Hall_problem), with running stats on whether staying or switching wins more cars. Follows the system's light or dark mode.
 
-See it running at [https://andrewmacheret.com/projects/montyhall](https://andrewmacheret.com/projects/montyhall).
+Play it at [andrewmacheret.com/projects/montyhall](https://andrewmacheret.com/projects/montyhall/). The API is [montyhall-server-lambda](https://github.com/andrewmacheret/montyhall-server-lambda).
 
-Build with [brunch](http://brunch.io/).
+## Development
 
-Make sure to modify the montyhall-server url in [settings.json](app/assets/settings.json).
- * This can be done after running `brunch build --production` in the `public/` folder.
+Built with [Vite](https://vite.dev/). Needs Node.js 24.
+
+```bash
+npm install
+
+# dev server on http://localhost:5173, using the live API
+npm run dev
+
+# or against a local copy of montyhall-server-lambda
+VITE_API_URL=http://localhost:8080 npm run dev
+
+# production build in dist/
+npm run build
+```
+
+The live API only allows requests from `https://andrewmacheret.com` and `http://localhost:5173` (CORS).
+
+## Deploy
+
+Pushes to `master` build the site, copy `dist/` to `s3://andrewmacheret.com/projects/montyhall`, and clear the CloudFront cache through GitHub Actions (see `.github/workflows/deploy.yml`). The workflow signs in to AWS with GitHub OIDC using the IAM role in the `AWS_ROLE_ARN` repo variable.

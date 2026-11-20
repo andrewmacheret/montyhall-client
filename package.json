@@ -1,44 +1,26 @@
 {
   "name": "montyhall-client",
-  "description": "A web-based client for montyhall-server built in react",
-  "author": "Andrew Macheret",
-  "version": "1.0.2",
+  "description": "A web-based client for montyhall-server-lambda built in react",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andrewmacheret/montyhall-client.git"
   },
-  "keywords": [
-    "react",
-    "montyhall",
-    "client"
-  ],
   "author": "Andrew Macheret <andrew.macheret@gmail.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/andrewmacheret/montyhall-client/issues"
-  },
-  "homepage": "https://github.com/andrewmacheret/montyhall-client#readme",
   "scripts": {
-    "watch": "brunch watch --server",
-    "build": "brunch build --production",
-    "clean": "rm -rf public/",
-    "deploy:s3": "aws s3 sync public/ s3://andrewmacheret.com/projects/monty/ --acl public-read",
-    "package": "npm run clean && npm run build",
-    "package-and-deploy": "npm run package && npm run deploy:s3"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "react": "~15.3.0",
-    "react-dom": "~15.3.0"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
   },
   "devDependencies": {
-    "auto-reload-brunch": "^2.0.0",
-    "babel-brunch": "~6.0.0",
-    "babel-preset-es2015": "~6.9.0",
-    "babel-preset-react": "~6.11.1",
-    "brunch": "^2.4.0",
-    "clean-css-brunch": "^2.0.0",
-    "css-brunch": "^2.0.0",
-    "javascript-brunch": "^2.0.0",
-    "uglify-js-brunch": "^2.0.0"
+    "@vitejs/plugin-react": "^6.3.0",
+    "vite": "^8.3.8"
   }
 }
