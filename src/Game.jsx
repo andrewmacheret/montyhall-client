@@ -5,6 +5,25 @@ import Stats from './Stats.jsx';
 
 const PLACEHOLDER_DOORS = [1, 2, 3].map((number) => ({ number, state: 'UNSELECTED' }));
 
+// this browser's results, keyed like the server's stats ("stayed-win", "totals-lose", ...)
+const MY_STATS_KEY = 'montyhall-my-stats';
+
+function loadMyStats() {
+  try {
+    return JSON.parse(localStorage.getItem(MY_STATS_KEY)) ?? {};
+  } catch {
+    return {};
+  }
+}
+
+function saveMyStats(stats) {
+  try {
+    localStorage.setItem(MY_STATS_KEY, JSON.stringify(stats));
+  } catch {
+    // storage can be turned off, the stats just won't stick around
+  }
+}
+
 function Icon({ children }) {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -37,6 +56,7 @@ export default function Game({ numberOfDoors }) {
   const [game, setGame] = useState(null);
   const [finalPick, setFinalPick] = useState(null);
   const [stats, setStats] = useState(null);
+  const [myStats, setMyStats] = useState(loadMyStats);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const started = useRef(false);
@@ -78,9 +98,30 @@ export default function Game({ numberOfDoors }) {
     const updated = await callApi(`/games/${game.id}`);
     setGame(updated);
     if (updated.state === 'FINISHED') {
+      recordMyGame(updated);
       await loadStats();
     }
   });
+
+  const recordMyGame = (finishedGame) => {
+    const prize = finishedGame.prize.toLowerCase();
+    const choice = finishedGame.switched ? 'switched' : 'stayed';
+    const next = { ...loadMyStats() };
+    for (const key of [`${choice}-${prize}`, `totals-${prize}`]) {
+      next[key] = (next[key] ?? 0) + 1;
+    }
+    saveMyStats(next);
+    setMyStats(next);
+  };
+
+  const resetMyStats = () => {
+    if (window.confirm('Clear your stats in this browser?')) {
+      saveMyStats({});
+      setMyStats({});
+    }
+  };
+
+  const myGameCount = (myStats['totals-win'] ?? 0) + (myStats['totals-lose'] ?? 0);
 
   const playAgain = () => run(() => newGame(game?.id));
 
@@ -140,7 +181,15 @@ export default function Game({ numberOfDoors }) {
         </div>
       </section>
 
-      <Stats stats={stats} />
+      <Stats
+        id="my-stats-title"
+        title="How you're doing"
+        stats={myStats}
+        action={myGameCount > 0 && (
+          <button type="button" className="text-button" onClick={resetMyStats}>Reset</button>
+        )}
+      />
+      <Stats id="stats-title" title="How everyone's doing" stats={stats} />
 
       <footer className="footer">
         <a href="https://en.wikipedia.org/wiki/Monty_Hall_problem">Why does switching win?</a>
