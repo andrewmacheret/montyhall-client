@@ -99,7 +99,6 @@
 }
 
 .door:hover:not(:disabled) .door-frame {
-  transform: translateY(-4px);
   box-shadow: 0 18px 40px rgb(0 0 0 / 0.5), 0 0 0 2px color-mix(in srgb, var(--accent) 50%, transparent);
 }
 
@@ -257,6 +256,11 @@
 /* stays in the layout so the page doesn't jump */
 .control[hidden] {
   visibility: hidden;
+}
+
+/* projects.css lifts buttons on hover, keep them still here */
+.control:hover:not(:disabled) {
+  transform: none;
 }
 
 /* stats */
