@@ -12,7 +12,7 @@ function StatCard({ label, meterLabel, theory, wins, losses }) {
   const percent = rate === null ? '–' : `${(rate * 100).toFixed(1)}%`;
 
   return (
-    <div className="stat-card">
+    <div className="card stat-card">
       <div className="stat-head">
         <h3>{label}</h3>
         {theory !== undefined && <span className="stat-theory">Theory {(theory * 100).toFixed(1)}%</span>}
@@ -44,7 +44,7 @@ export default function Stats({ id, title, stats, action }) {
   return (
     <section className="stats" aria-labelledby={id}>
       <div className="stats-head">
-        <h2 id={id}>{title}</h2>
+        <h2 id={id} className="section-head">{title}</h2>
         {action}
       </div>
       <div className="stat-cards" aria-busy={!stats}>
