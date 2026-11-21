@@ -127,13 +127,13 @@ export default function Game() {
 
   const openDoor = (number) => run(async () => {
     const doorState = game.state === 'SELECT_A_DOOR' ? 'SELECTED' : 'OPENED';
-    await callApi(`/games/${game.id}/doors/${number}`, 'PUT', { state: doorState });
+    const updated = await callApi(`/games/${game.id}/doors/${number}`, 'PUT', { state: doorState });
     if (doorState === 'OPENED') setFinalPick(number);
-    const updated = await callApi(`/games/${game.id}`);
     setGame(updated);
     if (updated.state === 'FINISHED') {
       recordMyGame(updated);
-      await loadStats();
+      // the game is done, so don't make the player wait on the stats
+      loadStats().catch(() => {});
     }
   });
 
