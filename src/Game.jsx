@@ -170,20 +170,15 @@ export default function Game() {
 
   return (
     <main className="app">
-      <nav className="breadcrumb" aria-label="Breadcrumb">
-        <ol>
-          <li>
-            <a href="https://andrewmacheret.com/">
-              <img src="https://andrewmacheret.com/favicon.svg" alt="" width="14" height="14" />
-              andrewmacheret.com
-            </a>
-          </li>
-          <li aria-current="page">Monty Hall</li>
-        </ol>
-      </nav>
       <header className="header">
         <div>
-          <h1>Monty Hall</h1>
+          <div className="title-row">
+            <a className="home" href="https://andrewmacheret.com/">
+              <img src="https://andrewmacheret.com/favicon.svg" alt="andrewmacheret.com" width="20" height="20" />
+            </a>
+            <span className="slash" aria-hidden="true">/</span>
+            <h1>Monty Hall</h1>
+          </div>
           <p>The game show puzzle that fools almost everyone.</p>
         </div>
         <label className="visually-hidden" htmlFor="doors">Number of doors</label>
