@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://github.com/andrewmacheret/montyhall-client/blob/master/LICENSE.md)
 
-A React game of the [Monty Hall problem](https://en.wikipedia.org/wiki/Monty_Hall_problem), with running stats on whether staying or switching wins more cars. Dark theme only, styled to match [cube](https://github.com/andrewmacheret/cube).
+A React game of the [Monty Hall problem](https://en.wikipedia.org/wiki/Monty_Hall_problem) with 3 to 10 doors, and running stats for each number of doors on whether staying or switching wins more cars. Dark theme only, styled to match [cube](https://github.com/andrewmacheret/cube).
 
 Play it at [andrewmacheret.com/projects/montyhall](https://andrewmacheret.com/projects/montyhall/). The API is [montyhall-server-lambda](https://github.com/andrewmacheret/montyhall-server-lambda).
 
