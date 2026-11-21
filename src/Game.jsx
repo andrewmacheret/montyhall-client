@@ -3,25 +3,45 @@ import { callApi } from './api.js';
 import Door from './Door.jsx';
 import Stats from './Stats.jsx';
 
-const PLACEHOLDER_DOORS = [1, 2, 3].map((number) => ({ number, state: 'UNSELECTED' }));
+// the server allows the same range
+const MIN_DOORS = 3;
+const MAX_DOORS = 10;
+const DOOR_CHOICES = Array.from({ length: MAX_DOORS - MIN_DOORS + 1 }, (_, i) => MIN_DOORS + i);
+const DOORS_KEY = 'montyhall-doors';
 
-// this browser's results, keyed like the server's stats ("stayed-win", "totals-lose", ...)
+// this browser's results, keyed like the server's stats ({"3": {"stayed-win": 1, "totals-win": 1}, ...})
 const MY_STATS_KEY = 'montyhall-my-stats';
 
-function loadMyStats() {
+function load(key) {
   try {
-    return JSON.parse(localStorage.getItem(MY_STATS_KEY)) ?? {};
+    return JSON.parse(localStorage.getItem(key));
   } catch {
-    return {};
+    return null;
   }
 }
 
-function saveMyStats(stats) {
+function save(key, value) {
   try {
-    localStorage.setItem(MY_STATS_KEY, JSON.stringify(stats));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    // storage can be turned off, the stats just won't stick around
+    // storage can be turned off, the choices just won't stick around
   }
+}
+
+function loadDoors() {
+  const doors = load(DOORS_KEY);
+  return DOOR_CHOICES.includes(doors) ? doors : MIN_DOORS;
+}
+
+function loadMyStats() {
+  const stats = load(MY_STATS_KEY) ?? {};
+  // stats saved before you could pick the number of doors were all 3-door games, like {"stayed-win": 2}
+  return Object.keys(stats).some((key) => key.includes('-')) ? { 3: stats } : stats;
+}
+
+// fewest rows, then as even as possible, like 10 doors in two rows of 5
+function columns(doors, maxColumns) {
+  return Math.ceil(doors / Math.ceil(doors / maxColumns));
 }
 
 function Icon({ children }) {
@@ -39,20 +59,25 @@ function message(game) {
     return { title: 'Pick a door', detail: 'Behind one door is a car. Behind the others, goats.' };
   }
   if (game.state === 'SECOND_CHANCE') {
-    const opened = game.doors.find((door) => door.state === 'OPENED');
+    const opened = game.doors.filter((door) => door.state === 'OPENED');
+    const other = game.doors.find((door) => door.state === 'UNSELECTED');
     return {
-      title: `There's a goat behind door ${opened.number}`,
-      detail: `Do you stay with door ${selected.number}, or switch?`
+      title: opened.length === 1
+        ? `There's a goat behind door ${opened[0].number}`
+        : `There are goats behind ${opened.length} doors`,
+      detail: `Do you stay with door ${selected.number}, or switch to door ${other.number}?`
     };
   }
   // after a switch the first pick is still marked SELECTED
   const how = game.switched ? `You switched from door ${selected.number}` : 'You stayed';
+  const odds = `Switching wins about ${game.doors.length - 1} games in ${game.doors.length}.`;
   return game.prize === 'WIN'
-    ? { title: 'You won a car!', detail: `${how}. Switching wins about 2 games in 3.`, tone: 'win' }
-    : { title: 'You got a goat', detail: `${how}. Switching wins about 2 games in 3.`, tone: 'lose' };
+    ? { title: 'You won a car!', detail: `${how}. ${odds}`, tone: 'win' }
+    : { title: 'You got a goat', detail: `${how}. ${odds}`, tone: 'lose' };
 }
 
-export default function Game({ numberOfDoors }) {
+export default function Game() {
+  const [doors, setDoors] = useState(loadDoors);
   const [game, setGame] = useState(null);
   const [finalPick, setFinalPick] = useState(null);
   const [stats, setStats] = useState(null);
@@ -76,20 +101,29 @@ export default function Game({ numberOfDoors }) {
 
   const loadStats = useCallback(async () => setStats(await callApi('/stats')), []);
 
-  const newGame = useCallback(async (oldGameId) => {
+  const newGame = useCallback(async (oldGameId, numberOfDoors) => {
     if (oldGameId) {
       callApi(`/games/${oldGameId}`, 'DELETE').catch(() => {});
     }
     setFinalPick(null);
-    setGame(await callApi('/games', 'POST', numberOfDoors ? { numberOfDoors } : {}));
-  }, [numberOfDoors]);
+    setGame(await callApi('/games', 'POST', { numberOfDoors }));
+  }, []);
 
   useEffect(() => {
     // StrictMode runs effects twice in dev, so only start one game
     if (started.current) return;
     started.current = true;
-    run(() => Promise.all([newGame(), loadStats()]));
-  }, [run, newGame, loadStats]);
+    run(() => Promise.all([newGame(null, doors), loadStats()]));
+  }, [run, newGame, loadStats, doors]);
+
+  const changeDoors = (numberOfDoors) => {
+    const oldGameId = game?.id;
+    setDoors(numberOfDoors);
+    save(DOORS_KEY, numberOfDoors);
+    // show blank doors while the new game loads
+    setGame(null);
+    run(() => newGame(oldGameId, numberOfDoors));
+  };
 
   const openDoor = (number) => run(async () => {
     const doorState = game.state === 'SELECT_A_DOOR' ? 'SELECTED' : 'OPENED';
@@ -104,29 +138,35 @@ export default function Game({ numberOfDoors }) {
   });
 
   const recordMyGame = (finishedGame) => {
+    const doorCount = finishedGame.doors.length;
     const prize = finishedGame.prize.toLowerCase();
     const choice = finishedGame.switched ? 'switched' : 'stayed';
-    const next = { ...loadMyStats() };
+    const counts = { ...loadMyStats()[doorCount] };
     for (const key of [`${choice}-${prize}`, `totals-${prize}`]) {
-      next[key] = (next[key] ?? 0) + 1;
+      counts[key] = (counts[key] ?? 0) + 1;
     }
-    saveMyStats(next);
+    const next = { ...loadMyStats(), [doorCount]: counts };
+    save(MY_STATS_KEY, next);
     setMyStats(next);
   };
 
   const resetMyStats = () => {
-    if (window.confirm('Clear your stats in this browser?')) {
-      saveMyStats({});
-      setMyStats({});
+    if (window.confirm(`Clear your ${doors}-door stats in this browser?`)) {
+      const next = { ...loadMyStats() };
+      delete next[doors];
+      save(MY_STATS_KEY, next);
+      setMyStats(next);
     }
   };
 
-  const myGameCount = (myStats['totals-win'] ?? 0) + (myStats['totals-lose'] ?? 0);
+  const myDoorStats = myStats[doors] ?? {};
+  const myGameCount = (myDoorStats['totals-win'] ?? 0) + (myDoorStats['totals-lose'] ?? 0);
 
-  const playAgain = () => run(() => newGame(game?.id));
+  const playAgain = () => run(() => newGame(game?.id, doors));
 
   const finished = game?.state === 'FINISHED';
   const { title, detail, tone } = message(game);
+  const shownDoors = game?.doors ?? Array.from({ length: doors }, (_, i) => ({ number: i + 1, state: 'UNSELECTED' }));
 
   return (
     <main className="app">
@@ -135,6 +175,18 @@ export default function Game({ numberOfDoors }) {
           <h1>Monty Hall</h1>
           <p>The game show puzzle that fools almost everyone.</p>
         </div>
+        <label className="visually-hidden" htmlFor="doors">Number of doors</label>
+        <select
+          id="doors"
+          className="select"
+          value={doors}
+          disabled={busy}
+          onChange={(event) => changeDoors(Number(event.target.value))}
+        >
+          {DOOR_CHOICES.map((n) => (
+            <option key={n} value={n}>{n} doors</option>
+          ))}
+        </select>
       </header>
 
       <section className={tone ? `stage stage-${tone}` : 'stage'} aria-labelledby="message">
@@ -143,8 +195,12 @@ export default function Game({ numberOfDoors }) {
           <p>{detail}</p>
         </div>
 
-        <div className="doors" aria-busy={busy}>
-          {(game?.doors ?? PLACEHOLDER_DOORS).map((door) => (
+        <div
+          className={columns(shownDoors.length, 4) >= 4 ? 'doors doors-dense' : 'doors'}
+          style={{ '--columns': columns(shownDoors.length, 6), '--columns-narrow': columns(shownDoors.length, 4) }}
+          aria-busy={busy}
+        >
+          {shownDoors.map((door) => (
             <Door
               // a new game remounts the doors so they don't swing shut on screen
               key={`${game?.id}-${door.number}`}
@@ -185,13 +241,19 @@ export default function Game({ numberOfDoors }) {
 
       <Stats
         id="my-stats-title"
-        title="How you're doing"
-        stats={myStats}
+        title={`How you're doing with ${doors} doors`}
+        doors={doors}
+        stats={myDoorStats}
         action={myGameCount > 0 && (
           <button type="button" className="text-button" onClick={resetMyStats}>Reset</button>
         )}
       />
-      <Stats id="stats-title" title="How everyone's doing" stats={stats} />
+      <Stats
+        id="stats-title"
+        title={`How everyone's doing with ${doors} doors`}
+        doors={doors}
+        stats={stats && (stats[doors] ?? {})}
+      />
 
       <footer className="footer">
         <a href="https://andrewmacheret.com/">More projects</a>

@@ -1,6 +1,7 @@
-const GROUPS = [
-  { key: 'stayed', label: 'Stayed', theory: 1 / 3 },
-  { key: 'switched', label: 'Switched', theory: 2 / 3 },
+// the host opens every door but one, so staying wins 1 game in N and switching wins the rest
+const groups = (doors) => [
+  { key: 'stayed', label: 'Stayed', theory: 1 / doors },
+  { key: 'switched', label: 'Switched', theory: (doors - 1) / doors },
   { key: 'totals', label: 'All games' }
 ];
 
@@ -40,7 +41,7 @@ function StatCard({ label, meterLabel, theory, wins, losses }) {
   );
 }
 
-export default function Stats({ id, title, stats, action }) {
+export default function Stats({ id, title, doors, stats, action }) {
   return (
     <section className="stats" aria-labelledby={id}>
       <div className="stats-head">
@@ -48,7 +49,7 @@ export default function Stats({ id, title, stats, action }) {
         {action}
       </div>
       <div className="stat-cards" aria-busy={!stats}>
-        {GROUPS.map(({ key, label, theory }) => (
+        {groups(doors).map(({ key, label, theory }) => (
           <StatCard
             key={key}
             label={label}
