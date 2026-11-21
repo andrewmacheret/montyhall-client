@@ -1,96 +1,30 @@
+/* Colors, cards, buttons and the footer come from https://andrewmacheret.com/projects.css */
+
 :root {
   color-scheme: dark;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #e2e8f0;
-  background: #0b1120;
-  --muted: #94a3b8;
-  --bright: #f1f5f9;
-  --glass: rgb(255 255 255 / 0.05);
-  --glass-border: rgb(255 255 255 / 0.1);
-  --accent: #8b5cf6;
-  --focus: #a5b4fc;
   --win: #4ade80;
   --lose: #fbbf24;
-  --error: #fca5a5;
-}
-
-html,
-body {
-  margin: 0;
-  min-height: 100%;
-}
-
-body {
-  min-height: 100dvh;
-  background: radial-gradient(120% 70% at 50% 0%, #3b4a66 0%, #1e293b 45%, #0b1120 100%) no-repeat;
-  background-color: #0b1120;
-}
-
-h1,
-h2,
-h3,
-p {
-  margin: 0;
-}
-
-a:link,
-a:visited {
-  color: #c4b5fd;
-  text-decoration: none;
-}
-
-a:hover {
-  color: #ddd6fe;
-  text-decoration: underline;
-}
-
-a:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-  border-radius: 2px;
 }
 
 .app {
-  box-sizing: border-box;
   max-width: 960px;
-  margin: 0 auto;
-  padding: max(1.5rem, env(safe-area-inset-top)) 1rem max(1.5rem, env(safe-area-inset-bottom));
-}
-
-.header h1 {
-  font-size: 1.25rem;
-  font-weight: 650;
-  letter-spacing: -0.01em;
-}
-
-.header p {
-  margin-top: 0.25rem;
-  color: var(--muted);
-  font-size: 0.875rem;
 }
 
 /* the main game area */
 
 .stage {
-  margin-top: 1.5rem;
   padding: 2rem 1.5rem 1.5rem;
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 20px 50px rgb(0 0 0 / 0.35), inset 0 1px 0 rgb(255 255 255 / 0.06);
   text-align: center;
   transition: border-color 0.4s, box-shadow 0.4s;
 }
 
 .stage-win {
-  border-color: rgb(74 222 128 / 0.35);
-  box-shadow: 0 20px 50px rgb(0 0 0 / 0.35), 0 0 60px rgb(74 222 128 / 0.12);
+  border-color: var(--good-border);
+  box-shadow: var(--shadow), 0 0 60px rgb(74 222 128 / 0.12);
 }
 
 .stage-lose {
-  border-color: rgb(251 191 36 / 0.3);
+  border-color: var(--warn-border);
 }
 
 .message h2 {
@@ -102,11 +36,11 @@ a:focus-visible {
 }
 
 .stage-win .message h2 {
-  color: #86efac;
+  color: var(--good);
 }
 
 .stage-lose .message h2 {
-  color: #fcd34d;
+  color: var(--warn);
 }
 
 .message p {
@@ -118,7 +52,7 @@ a:focus-visible {
 
 .error {
   margin-top: 1rem;
-  color: var(--error);
+  color: var(--bad);
   font-size: 0.9rem;
 }
 
@@ -177,7 +111,7 @@ a:focus-visible {
 }
 
 .door:focus-visible .door-frame {
-  box-shadow: 0 0 0 3px #0b1120, 0 0 0 5px var(--focus);
+  box-shadow: 0 0 0 3px var(--bg), 0 0 0 5px var(--focus);
 }
 
 /* what's behind the door, shown once the panel swings open */
@@ -283,25 +217,25 @@ a:focus-visible {
 }
 
 .tag-pick {
-  background: linear-gradient(135deg, #6366f1, #a855f7);
+  background: var(--gradient);
   color: #fff;
 }
 
 .tag-win {
-  background: rgb(74 222 128 / 0.18);
-  border-color: rgb(74 222 128 / 0.45);
-  color: #bbf7d0;
+  border-color: var(--good-border);
+  background: var(--good-bg);
+  color: var(--good);
 }
 
 .tag-lose {
-  background: rgb(251 191 36 / 0.15);
-  border-color: rgb(251 191 36 / 0.4);
-  color: #fde68a;
+  border-color: var(--warn-border);
+  background: var(--warn-bg);
+  color: var(--warn);
 }
 
 .tag-switch {
-  border-color: rgb(255 255 255 / 0.2);
-  background: rgb(255 255 255 / 0.08);
+  border-color: var(--control-border);
+  background: var(--control);
   color: var(--bright);
 }
 
@@ -313,63 +247,15 @@ a:focus-visible {
   visibility: hidden;
 }
 
-/* buttons, same as the cube page */
-
 .dock {
   display: flex;
   justify-content: center;
   margin-top: 1.5rem;
 }
 
-.control {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border: 1px solid rgb(255 255 255 / 0.14);
-  border-radius: 999px;
-  background: rgb(255 255 255 / 0.08);
-  box-shadow: 0 8px 24px rgb(0 0 0 / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.1);
-  color: var(--bright);
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: background-color 0.15s, transform 0.15s, opacity 0.15s;
-}
-
 /* stays in the layout so the page doesn't jump */
 .control[hidden] {
   visibility: hidden;
-}
-
-.control:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.control:active:not(:disabled) {
-  transform: translateY(0) scale(0.97);
-}
-
-.control:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 3px;
-}
-
-.control:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.control.primary {
-  border-color: transparent;
-  background: linear-gradient(135deg, #6366f1, #a855f7);
-  box-shadow: 0 8px 24px rgb(99 102 241 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.25);
-}
-
-.control.primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #7376f4, #b46af8);
 }
 
 /* stats */
@@ -386,14 +272,6 @@ a:focus-visible {
   margin-bottom: 0.75rem;
 }
 
-.stats-head h2 {
-  color: var(--muted);
-  font-size: 0.8rem;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
 .text-button {
   padding: 0.15rem 0.4rem;
   border: none;
@@ -407,27 +285,11 @@ a:focus-visible {
 
 .text-button:hover {
   color: var(--bright);
-  background: rgb(255 255 255 / 0.06);
-}
-
-.text-button:focus-visible {
-  outline: 2px solid var(--focus);
-  outline-offset: 2px;
-}
-
-.stat-cards {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1rem;
+  background: var(--control);
 }
 
 .stat-card {
   padding: 1rem 1.25rem 1.1rem;
-  border: 1px solid var(--glass-border);
-  border-radius: 18px;
-  background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
 }
 
 .stat-head {
@@ -470,14 +332,14 @@ a:focus-visible {
   height: 8px;
   margin-top: 0.6rem;
   border-radius: 999px;
-  background: rgb(255 255 255 / 0.08);
+  background: var(--control);
 }
 
 .stat-fill {
   position: absolute;
   inset: 0 auto 0 0;
   border-radius: inherit;
-  background: linear-gradient(90deg, #6366f1, #a855f7);
+  background: var(--gradient);
   transition: width 0.6s ease;
 }
 
@@ -500,19 +362,9 @@ a:focus-visible {
   font-variant-numeric: tabular-nums;
 }
 
-.footer {
-  display: flex;
-  justify-content: center;
-  gap: 0.6rem;
-  margin-top: 2rem;
-  color: var(--muted);
-  font-size: 0.85rem;
-}
-
 @media (max-width: 640px) {
   .stage {
     padding: 1.5rem 0.75rem 1.25rem;
-    border-radius: 20px;
   }
 
   .stat-cards {
@@ -545,7 +397,6 @@ a:focus-visible {
   .stage,
   .door-frame,
   .door-panel,
-  .control,
   .stat-fill {
     transition: none;
   }

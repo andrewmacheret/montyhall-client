@@ -131,8 +131,10 @@ export default function Game({ numberOfDoors }) {
   return (
     <main className="app">
       <header className="header">
-        <h1>Monty Hall</h1>
-        <p>The game show puzzle that fools almost everyone.</p>
+        <div>
+          <h1>Monty Hall</h1>
+          <p>The game show puzzle that fools almost everyone.</p>
+        </div>
       </header>
 
       <section className={tone ? `stage stage-${tone}` : 'stage'} aria-labelledby="message">
@@ -192,6 +194,8 @@ export default function Game({ numberOfDoors }) {
       <Stats id="stats-title" title="How everyone's doing" stats={stats} />
 
       <footer className="footer">
+        <a href="https://andrewmacheret.com/">More projects</a>
+        <span aria-hidden="true">·</span>
         <a href="https://en.wikipedia.org/wiki/Monty_Hall_problem">Why does switching win?</a>
         <span aria-hidden="true">·</span>
         <a href="https://github.com/andrewmacheret/montyhall-client">Source</a>
