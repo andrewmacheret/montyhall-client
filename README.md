@@ -1,6 +1,6 @@
 # montyhall-client
 
-[![License](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://github.com/andrewmacheret/montyhall-client/blob/master/LICENSE.md)
+[![Build and deploy](https://github.com/andrewmacheret/montyhall-client/actions/workflows/deploy.yml/badge.svg)](https://github.com/andrewmacheret/montyhall-client/actions/workflows/deploy.yml) [![License](https://img.shields.io/badge/license-MIT-lightgray.svg)](https://github.com/andrewmacheret/montyhall-client/blob/master/LICENSE.md)
 
 A React game of the [Monty Hall problem](https://en.wikipedia.org/wiki/Monty_Hall_problem) with 3 to 10 doors, and running stats for each number of doors on whether staying or switching wins more cars. Dark theme only, styled to match [cube](https://github.com/andrewmacheret/cube).
 
