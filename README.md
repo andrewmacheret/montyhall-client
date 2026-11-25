@@ -27,7 +27,7 @@ The live API only allows requests from `https://andrewmacheret.com` and `http://
 
 ## Health check
 
-[`/projects/montyhall/healthcheck/`](https://andrewmacheret.com/projects/montyhall/healthcheck/) checks the page and its scripts and styles, and the Monty Hall API's own health check. The Canary workflow (`.github/workflows/canary.yml`) opens it once a day, started by [andrewmacheret/canary](https://github.com/andrewmacheret/canary).
+Once a day, the Canary workflow (`.github/workflows/canary.yml`) checks the page and its scripts and styles, and the Monty Hall API's own health check. It's started by [andrewmacheret/canary](https://github.com/andrewmacheret/canary).
 
 ## Deploy
 
