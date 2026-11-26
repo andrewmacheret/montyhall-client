@@ -52,9 +52,23 @@ function Icon({ children }) {
   );
 }
 
-function message(game) {
+// pending is the door that was just clicked, while we wait on the server
+function message(game, pending) {
   if (!game) return { title: 'Setting the stage…', detail: 'Hiding a car behind one of the doors.' };
   const selected = game.doors.find((door) => door.state === 'SELECTED');
+  if (pending && game.state === 'SELECT_A_DOOR') {
+    const goats = game.doors.length - 2;
+    return {
+      title: `You picked door ${pending}`,
+      detail: goats === 1 ? 'Monty is opening one of the other doors…' : `Monty is opening ${goats} of the other doors…`
+    };
+  }
+  if (pending && game.state === 'SECOND_CHANCE') {
+    return {
+      title: `Opening door ${pending}…`,
+      detail: pending === selected.number ? `You stayed with door ${pending}.` : `You switched from door ${selected.number}.`
+    };
+  }
   if (game.state === 'SELECT_A_DOOR') {
     return { title: 'Pick a door', detail: 'Behind one door is a car. Behind the others, goats.' };
   }
@@ -80,11 +94,14 @@ export default function Game() {
   const [doors, setDoors] = useState(loadDoors);
   const [game, setGame] = useState(null);
   const [finalPick, setFinalPick] = useState(null);
+  const [pending, setPending] = useState(null);
   const [stats, setStats] = useState(null);
   const [myStats, setMyStats] = useState(loadMyStats);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(null);
   const started = useRef(false);
+  // the next game, made in the background once a game ends so Play again is instant
+  const nextGame = useRef(null);
 
   // runs an api action, blocking clicks until it's done
   const run = useCallback(async (action) => {
@@ -105,8 +122,16 @@ export default function Game() {
     if (oldGameId) {
       callApi(`/games/${oldGameId}`, 'DELETE').catch(() => {});
     }
+    const next = nextGame.current;
+    nextGame.current = null;
+    let ready = null;
+    if (next?.doors === numberOfDoors) {
+      ready = await next.game;
+    } else if (next) {
+      next.game.then((unused) => unused && callApi(`/games/${unused.id}`, 'DELETE')).catch(() => {});
+    }
     setFinalPick(null);
-    setGame(await callApi('/games', 'POST', { numberOfDoors }));
+    setGame(ready ?? await callApi('/games', 'POST', { numberOfDoors }));
   }, []);
 
   useEffect(() => {
@@ -125,17 +150,34 @@ export default function Game() {
     run(() => newGame(oldGameId, numberOfDoors));
   };
 
-  const openDoor = (number) => run(async () => {
+  const openDoor = (number) => {
     const doorState = game.state === 'SELECT_A_DOOR' ? 'SELECTED' : 'OPENED';
-    const updated = await callApi(`/games/${game.id}/doors/${number}`, 'PUT', { state: doorState });
+    // show the click right away, the server's answer fills in the rest
+    setPending(number);
     if (doorState === 'OPENED') setFinalPick(number);
-    setGame(updated);
-    if (updated.state === 'FINISHED') {
-      recordMyGame(updated);
-      // the game is done, so don't make the player wait on the stats
-      loadStats().catch(() => {});
-    }
-  });
+    run(async () => {
+      try {
+        // POST instead of PUT, since a PUT waits on a CORS preflight first
+        const updated = await callApi(`/games/${game.id}/doors/${number}`, 'POST', { state: doorState });
+        setGame(updated);
+        if (updated.state === 'FINISHED') {
+          recordMyGame(updated);
+          const numberOfDoors = updated.doors.length;
+          nextGame.current = {
+            doors: numberOfDoors,
+            game: callApi('/games', 'POST', { numberOfDoors }).catch(() => null)
+          };
+          // the game is done, so don't make the player wait on the stats
+          loadStats().catch(() => {});
+        }
+      } catch (err) {
+        if (doorState === 'OPENED') setFinalPick(null);
+        throw err;
+      } finally {
+        setPending(null);
+      }
+    });
+  };
 
   const recordMyGame = (finishedGame) => {
     const doorCount = finishedGame.doors.length;
@@ -165,8 +207,9 @@ export default function Game() {
   const playAgain = () => run(() => newGame(game?.id, doors));
 
   const finished = game?.state === 'FINISHED';
-  const { title, detail, tone } = message(game);
-  const shownDoors = game?.doors ?? Array.from({ length: doors }, (_, i) => ({ number: i + 1, state: 'UNSELECTED' }));
+  const { title, detail, tone } = message(game, pending);
+  const shownDoors = (game?.doors ?? Array.from({ length: doors }, (_, i) => ({ number: i + 1, state: 'UNSELECTED' })))
+    .map((door) => (door.number === pending && game.state === 'SELECT_A_DOOR' ? { ...door, state: 'SELECTED' } : door));
 
   return (
     <main className="app">
@@ -215,6 +258,7 @@ export default function Game() {
               prize={door.prize}
               gameState={game?.state}
               isFinalPick={door.number === finalPick}
+              opening={door.number === pending && game.state === 'SECOND_CHANCE'}
               disabled={busy || !game || finished}
               onOpen={openDoor}
             />

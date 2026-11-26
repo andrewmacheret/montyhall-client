@@ -166,6 +166,12 @@
   backface-visibility: hidden;
 }
 
+/* cracks the door open while the server decides what's behind it, then .open swings it the rest of the way */
+.door.opening .door-panel {
+  transform: rotateY(-25deg);
+  transition-duration: 1.2s;
+}
+
 .door.open .door-panel {
   transform: rotateY(-105deg);
   opacity: 0;

@@ -13,6 +13,8 @@ for (const { src } of Object.values(PRIZES)) {
 }
 
 function tagFor({ state, prize, gameState, isFinalPick }) {
+  // only while the first pick is on its way to the server
+  if (gameState === 'SELECT_A_DOOR' && state === 'SELECTED') return { text: 'Your pick', kind: 'pick' };
   if (gameState === 'SECOND_CHANCE') {
     if (state === 'SELECTED') return { text: 'Stay', kind: 'pick' };
     if (state === 'UNSELECTED') return { text: 'Switch', kind: 'switch' };
@@ -24,7 +26,7 @@ function tagFor({ state, prize, gameState, isFinalPick }) {
   return null;
 }
 
-export default function Door({ number, state, prize, gameState, isFinalPick, disabled, onOpen }) {
+export default function Door({ number, state, prize, gameState, isFinalPick, opening, disabled, onOpen }) {
   const opened = state === 'OPENED';
   const revealed = PRIZES[prize];
   const tag = tagFor({ state, prize, gameState, isFinalPick });
@@ -35,7 +37,8 @@ export default function Door({ number, state, prize, gameState, isFinalPick, dis
 
   const classes = ['door', `state-${state}`, `game-${gameState}`];
   if (opened) classes.push('open');
-  if (isFinalPick) classes.push(prize === 'WIN' ? 'final-win' : 'final-lose');
+  if (opening) classes.push('opening');
+  if (isFinalPick && prize) classes.push(prize === 'WIN' ? 'final-win' : 'final-lose');
 
   return (
     <button
